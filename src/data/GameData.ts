@@ -178,10 +178,10 @@ export class GameData {
   }
 
   // Returns true if the client has new tasks and thus should receive an update.
-  private FinishTask(player_id: string, task_id: string): boolean {
-    this.players.find((player) => {
-      return player.id == player_id;
-    });
+  private FinishTask(player: PlayerData, task_id: string): boolean {
+    this.playerTasks.get(player.id)?.find((playerTask) => {
+      
+    })
     return true;
   }
 
