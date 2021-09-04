@@ -1,0 +1,8 @@
+{
+    "previews": {
+        "8080": {
+            "name": "Server",
+            "script": "yarn start" 
+        }
+    }
+}

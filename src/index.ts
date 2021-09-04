@@ -1,9 +1,53 @@
-var http = require("http");
+import express from "express";
+import { Server } from "socket.io";
+import http from "http";
+import { v4 } from "uuid";
+import { PlayerData } from "./data/PlayerData";
+import { GameManager } from "./data/GameManager";
 
-//create a server object:
-http
-  .createServer(function (req, res) {
-    res.write("Hello World!"); //write a response to the client
-    res.end(); //end the response
-  })
-  .listen(8080); //the server object listens on port 8080
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+const gameManager = new GameManager();
+
+app.get("/", (req, res) => {
+  res.json({ hello: "world!" });
+  res.end();
+});
+
+interface LoginMessage {
+  name: string;
+}
+
+interface KickPlayerMessage {
+  player_id: string;
+}
+
+io.on("connection", (socket) => {
+  console.log("a user connected");
+
+  socket.on("login", (loginMessage: LoginMessage, cb: Function) => {
+    const id = v4();
+    const newPlayer = new PlayerData(loginMessage.name, id, socket);
+    if (loginMessage.name === "FloJo" || loginMessage.name === "Flippo") {
+      newPlayer.set_admin();
+    }
+
+    const currentGame = gameManager.getCurrentGame();
+    currentGame.addPlayer(newPlayer);
+
+    cb({
+      id,
+      status: LoginCodeStatus,
+      name: loginMessage.name,
+      wins: newPlayer.wins,
+      loses: newPlayer.loses,
+      isAdmin: newPlayer.isAdmin,
+    });
+  });
+});
+
+server.listen(8080, () => {
+  console.log("listening on *:8080");
+});
