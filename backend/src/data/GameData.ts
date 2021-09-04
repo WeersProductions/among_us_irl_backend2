@@ -69,6 +69,10 @@ export class GameData {
       this.currentlyConnected.delete(player.socket);
     });
 
+    player.socket.on("ReportBody", () => {
+      this.sendBodyReported();
+    });
+
     if (player.isAdmin) {
       player.socket.on("KickPlayer", (kickPlayerMessage: KickPlayerMessage) => {
         console.log("kick-player");
@@ -298,6 +302,12 @@ export class GameData {
         gameSettings: this.gameSettings,
       });
     });
+  }
+
+  private sendBodyReported() {
+    this.players.forEach((player) => {
+      player.socket.emit("BodyReported");
+    })
   }
 
   private sendTasks(player: PlayerData) {
