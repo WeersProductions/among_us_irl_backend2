@@ -78,7 +78,11 @@ export class GameData {
 
       player.socket.on(
         "FinishTask",
-        (finishTaskMessage: FinishTaskMessage) => {}
+        (finishTaskMessage: FinishTaskMessage) => {
+          if (this.FinishTask(player, finishTaskMessage.taskId)) {
+            // The player should receive an update.
+          }
+        }
       );
     }
   }
@@ -173,6 +177,7 @@ export class GameData {
     };
   }
 
+  // Returns true if the client has new tasks and thus should receive an update.
   private FinishTask(player_id: string, task_id: string): boolean {
     this.players.find((player) => {
       return player.id == player_id;
