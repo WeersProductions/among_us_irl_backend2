@@ -4,6 +4,7 @@ import http from "http";
 import { v4 } from "uuid";
 import { PlayerData } from "./data/PlayerData";
 import { GameManager } from "./data/GameManager";
+import { LoginCodeStatus } from "./protocol";
 
 const app = express();
 const server = http.createServer(app);
@@ -39,11 +40,17 @@ io.on("connection", (socket) => {
 
     cb({
       id,
-      status: LoginCodeStatus,
-      name: loginMessage.name,
-      wins: newPlayer.wins,
-      loses: newPlayer.loses,
-      isAdmin: newPlayer.isAdmin,
+      status: LoginCodeStatus.Success,
+      profile: {
+        name: loginMessage.name,
+        wins: newPlayer.wins,
+        loses: newPlayer.loses,
+        isAdmin: newPlayer.isAdmin,
+      },
+      game: {
+        status: currentGame.gameStatus,
+        settings: currentGame.gameSettings,
+      },
     });
   });
 });

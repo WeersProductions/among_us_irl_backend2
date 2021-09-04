@@ -23,6 +23,15 @@ interface SetPlayingMessage {
   gameStatus: number;
 }
 
+interface SetGameSettingsMessage {
+  settingName: string;
+  settingValue: string;
+}
+
+interface FinishTaskMessage {
+  taskId: string;
+}
+
 export class GameData {
   players: PlayerData[] = [];
   currentlyConnected: Map<Socket, PlayerData> = new Map();
@@ -56,6 +65,21 @@ export class GameData {
       player.socket.on("SetPlaying", (setPlayingMessage: SetPlayingMessage) => {
         this.setGameStatus(setPlayingMessage.gameStatus);
       });
+
+      player.socket.on(
+        "SetGameSettings",
+        (setGameSettingsMessage: SetGameSettingsMessage) => {
+          // @ts-ignore
+          this.gameSettings[setGameSettingsMessage.settingName] =
+            setGameSettingsMessage.settingValue;
+          this.sendGameSettings();
+        }
+      );
+
+      player.socket.on(
+        "FinishTask",
+        (finishTaskMessage: FinishTaskMessage) => {}
+      );
     }
   }
 
@@ -149,6 +173,13 @@ export class GameData {
     };
   }
 
+  private FinishTask(player_id: string, task_id: string): boolean {
+    this.players.find((player) => {
+      return player.id == player_id;
+    });
+    return true;
+  }
+
   private removePlayer(player: PlayerData) {
     this.currentlyConnected.delete(player.socket);
     this.sendPlayerList();
@@ -203,17 +234,24 @@ export class GameData {
     console.log("Curent progress: ", progress);
     this.players.forEach((player) => {
       player.socket.emit("progress", {
-        progress: progress
+        progress: progress,
       });
     });
   }
 
   private sendGameStatus() {
     this.players.forEach((player) => {
-      player.socket.send({
-        msgType: "SetPlaying",
+      player.socket.emit("SetPlaying", {
         status: this.gameStatus,
-        gameDate: this.getClientGameInfo(player.id),
+        gameData: this.getClientGameInfo(player.id),
+      });
+    });
+  }
+
+  private sendGameSettings() {
+    this.players.forEach((player) => {
+      player.socket.emit("SetGameSettings", {
+        gameSettings: this.gameSettings,
       });
     });
   }
