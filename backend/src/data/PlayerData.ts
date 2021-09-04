@@ -8,10 +8,10 @@ export class PlayerData {
 
   constructor(public name: string, public id: string, public socket: Socket) {
     console.log(`Created new user: ${name}`);
-  }
 
-  public set_admin() {
-    this.isAdmin = true;
+    if (name === "FloJo" || name === "Flippo") {
+      this.isAdmin = true;
+    }
   }
 
   public initialize() {
@@ -23,4 +23,15 @@ export class PlayerTask {
   public finished: boolean = false;
 
   constructor(public task: Task) {}
+}
+
+export class PlayerClientTask {
+  constructor(public finished: boolean, public task_id: string) {}
+
+  public serialize() {
+    return {
+      finished: this.finished,
+      task_id: this.task_id,
+    };
+  }
 }

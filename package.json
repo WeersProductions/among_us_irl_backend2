@@ -1,24 +1,9 @@
 {
-  "name": "among-us-backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/index.ts",
+  "name": "amongus-irl",
+  "private": true,
+  "workspaces": ["frontend", "backend"],
   "scripts": {
-    "start": "nodemon --watch './**/*.ts' --exec 'ts-node' src/index.ts"
-  },
-  "dependencies": {
-    "express": "^4.17.1",
-    "socket.io": "^4.2.0",
-    "typescript": "4.4.2",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "@types/express": "^4.17.13",
-    "@types/node": "^16.7.10",
-    "@types/uuid": "^8.3.1",
-    "nodemon": "1.18.4",
-    "prettier": "^2.3.2",
-    "ts-node": "^10.2.1"
-  },
-  "keywords": []
+    "start-server": "cd backend && yarn start",
+    "start-frontend": "cd frontend && yarn start"
+  }
 }
