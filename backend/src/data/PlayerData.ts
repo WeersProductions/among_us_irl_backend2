@@ -22,16 +22,17 @@ export class PlayerData {
 export class PlayerTask {
   public finished: boolean = false;
 
-  constructor(public task: Task) {}
+  constructor(public task: Task, public location: number) {}
 }
 
 export class PlayerClientTask {
-  constructor(public finished: boolean, public task_id: string) {}
+  constructor(public finished: boolean, public task_id: string, public location: number) {}
 
   public serialize() {
     return {
       finished: this.finished,
-      task_id: this.task_id,
+      id: this.task_id,
+      location: this.location
     };
   }
 }

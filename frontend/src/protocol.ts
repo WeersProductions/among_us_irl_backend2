@@ -1,4 +1,4 @@
-import { GameData } from "./AmongUs";
+import { GameData, PlayerTask } from "./AmongUs";
 import { GameSettings } from "./GameSettings";
 import { GameStatus } from "./GameStatusEnum";
 
@@ -34,4 +34,26 @@ export interface SetPlayingMessage {
 
 export interface SetProgressMessage {
   progress: number;
+}
+
+export interface SetTasksMessage {
+  tasks: PlayerTask[];
+}
+
+export interface CurrentConnection {
+  name: string;
+  id: string;
+  imposter?: boolean;
+}
+
+export interface SetConnectionsMessage {
+  totalConnectionCount: number;
+  loggedInConnections: CurrentConnection[];
+}
+
+export interface AdminInfo {
+  connectionInfo: {
+    totalConnectionCount: number;
+    loggedInConnections: CurrentConnection[];
+  };
 }

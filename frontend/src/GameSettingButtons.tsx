@@ -1,5 +1,5 @@
 import React from "react";
-import { AdminInfo } from "./AdminInfoTypes";
+import { AdminInfo } from "./protocol";
 import { GameStatus } from "./GameStatusEnum";
 import Progress from "react-progressbar";
 import { GameSettings } from "./GameSettings";
@@ -8,7 +8,7 @@ import { EditGameSettings } from "./EditGameSettings";
 interface GameSettingButtonsProps {
   gameStatus: GameStatus;
   onChangeGameStatus: (status: GameStatus) => void;
-  onKickPlayer: (playerId: number) => void;
+  onKickPlayer: (playerId: string) => void;
   onEditGameSetting: (key: string, value: number) => void;
   adminInfo: AdminInfo | null;
   progress: number;

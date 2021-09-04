@@ -6,63 +6,42 @@ import { GameStatus } from "./GameStatusEnum";
 import { AmongUsMap } from "./AmongUsMap";
 import { Socket } from "socket.io-client";
 
-interface BasicMessage {
-  msgType: string;
-  code: string;
-}
-
 interface AmongUsProperties {
   gameStatus: GameStatus;
   gameData: GameData | null;
   socket: Socket;
-  getBasicMessage: (msgType: string) => BasicMessage;
   progress: number;
 }
 
-export interface Task {
-  long: boolean;
-  name: string;
+export interface PlayerTask {
   id: string;
-  can_be_common: boolean;
+  finished: boolean;
   location: number;
-  finished?: boolean;
 }
 
 export interface Player {
   id: number;
   imposter?: boolean;
   name: string;
-  tasks: Task[];
+}
+
+export interface CurrentPlayer extends Player {
+  tasks: PlayerTask[];
 }
 
 export interface GameData {
   allPlayers: Player[];
-  client: Player;
+  client: CurrentPlayer;
 }
-
-const SendFinishTask = (
-  basicMessage: BasicMessage,
-  taskId: string,
-  socket: Socket
-) => {
-  //TODO: refactor
-  socket.send(
-    JSON.stringify({
-      ...basicMessage,
-      taskId,
-    })
-  );
-};
 
 export const AmongUs = ({
   gameStatus,
   gameData,
   socket,
-  getBasicMessage,
   progress,
 }: AmongUsProperties) => {
   const [roleTime, setRoleTime] = useState(5);
-  const [currentTask, setCurrentTask] = useState<Task | null>(null);
+  const [currentTask, setCurrentTask] = useState<PlayerTask | null>(null);
   const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
@@ -111,7 +90,8 @@ export const AmongUs = ({
               {gameData?.client.imposter
                 ? `imposter with ${gameData?.allPlayers
                     .filter((player) => player.imposter)
-                    .map((player) => `${player.name}, `)}`
+                    .map((player) => player.name)
+                    .join(", ")}`
                 : "normal"}
             </p>
           ) : (
@@ -151,11 +131,7 @@ export const AmongUs = ({
                 <MiniGame
                   task={currentTask}
                   onFinish={() => {
-                    SendFinishTask(
-                      getBasicMessage("FinishTask"),
-                      currentTask.id,
-                      socket
-                    );
+                    socket.emit("FinishTask", { taskId: currentTask.id });
                     currentTask.finished = true;
                     setCurrentTask(null);
                   }}
@@ -193,9 +169,7 @@ export const AmongUs = ({
                     borderRadius: "1rem",
                     background: "white",
                   }}
-                  onClick={() =>
-                    socket.send(JSON.stringify({ msgType: "ReportBody" }))
-                  }
+                  onClick={() => socket.emit("ReportBody")}
                 >
                   Report
                 </button>

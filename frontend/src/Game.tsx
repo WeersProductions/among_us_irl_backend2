@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { AdminInfo } from "./AdminInfoTypes";
 import { AmongUs, GameData } from "./AmongUs";
 import { GameSettingButtons } from "./GameSettingButtons";
 import { GameSettings } from "./GameSettings";
@@ -11,11 +10,14 @@ import io, { Socket } from "socket.io-client";
 import { WebsocketStatusInfo } from "./WebsocketStatusInfo";
 
 import {
+  AdminInfo,
   LoginCodeStatus,
   LoginResponse,
+  SetConnectionsMessage,
   SetGameSettingsMessage,
   SetPlayingMessage,
   SetProgressMessage,
+  SetTasksMessage,
 } from "./protocol";
 
 const getServerUrl = () => {
@@ -79,7 +81,7 @@ export const Game = () => {
       setProgress(data.progress);
     });
 
-    socket.on("SetTasks", (data) => {
+    socket.on("SetTasks", (data: SetTasksMessage) => {
       setGameData((gameData) => {
         if (gameData) {
           gameData.client.tasks = data.tasks;
@@ -88,37 +90,17 @@ export const Game = () => {
       });
     });
 
-    // socket.onmessage = (event) => {
-    //   const msg = JSON.parse(event.data);
-    //   console.log(msg);
-    //   switch (msg.msgType) {
-    //     case "SetTasks":
-    //       console.log("Arriving!");
-    //       setGameData((gameData) => {
-    //         console.log("test!");
-    //         console.log("received", gameData);
-    //         if (gameData) {
-    //           console.log("updating");
-    //           gameData.client.tasks = msg.tasks;
-    //         }
-    //         console.log("updated", gameData);
-    //         return gameData;
-    //       });
-    //       break;
-    //     case "SetConnections":
-    //       const connectionInfo = {
-    //         totalConnectionCount: msg.totalConnectionCount,
-    //         loggedInConnections: msg.loggedInConnections,
-    //       };
-    //       setAdminInfo((adminInfo) => ({ ...adminInfo, connectionInfo }));
-    //       break;
-    //     case "BodyReported":
-    //       audio.play().catch(() => console.log("Audio play error!"));
-    //       break;
-    //     default:
-    //       break;
-    //   }
-    // };
+    socket.on("SetConnections", (data: SetConnectionsMessage) => {
+      const connectionInfo = {
+        totalConnectionCount: data.totalConnectionCount,
+        loggedInConnections: data.loggedInConnections,
+      };
+      setAdminInfo((adminInfo) => ({ ...adminInfo, connectionInfo }));
+    });
+
+    socket.on("BodyReported", () => {
+      audio.play().catch(() => console.log("Audio play error!"));
+    });
   }, []);
 
   useEffect(() => {
@@ -195,23 +177,15 @@ export const Game = () => {
                   });
                 }}
                 onKickPlayer={(playerId) => {
-                  webSocket.current?.send(
-                    JSON.stringify({
-                      msgType: "KickPlayer",
-                      playerId,
-                      code: username,
-                    })
-                  );
+                  webSocket.current?.emit("KickPlayer", {
+                    playerId,
+                  });
                 }}
                 onEditGameSetting={(key, value) => {
-                  webSocket.current?.send(
-                    JSON.stringify({
-                      msgType: "SetGameSettings",
-                      code: username,
-                      settingName: key,
-                      settingValue: value,
-                    })
-                  );
+                  webSocket.current?.emit("SetGameSettings", {
+                    settingName: key,
+                    settingValue: value,
+                  });
                 }}
               />
             ) : /**Showing profile */ gameStatus === GameStatus.NotStarted ||
@@ -220,9 +194,6 @@ export const Game = () => {
             ) : (
               /**We're playing a game */ <AmongUs
                 progress={progress}
-                getBasicMessage={(msgType: string) => {
-                  return { code: username!, msgType };
-                }}
                 socket={webSocket.current!}
                 gameStatus={gameStatus}
                 gameData={gameData}

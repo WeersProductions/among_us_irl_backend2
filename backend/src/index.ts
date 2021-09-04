@@ -37,8 +37,8 @@ io.on("connection", (socket) => {
   console.log("a user connected");
 
   socket.on("login", (loginMessage: LoginMessage, cb: Function) => {
+    const player = gameManager.addPlayer(loginMessage.name, socket);
     const currentGame = gameManager.getCurrentGame();
-    const player = currentGame.addPlayer(loginMessage.name, socket);
 
     cb({
       id: player.id,

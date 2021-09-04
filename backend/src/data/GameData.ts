@@ -1,18 +1,17 @@
 import { Socket } from "socket.io";
 import { v4 } from "uuid";
 import { getRandom, shuffleArray } from "../arrayUtils";
-import {
-  default_gamesettings as defaultGameSettings,
-  GameSettings,
-} from "./GameSettings";
+import { isPermanentDisconnect } from "../utils";
+import { defaultGameSettings, GameSettings } from "./GameSettings";
+import { DEFAULT_MAP, MapInfo } from "./MapInfo";
 import { PlayerClientTask, PlayerData, PlayerTask } from "./PlayerData";
 import { Task, tasks as defaultTasks } from "./Task";
 
 interface KickPlayerMessage {
-  player_id: string;
+  playerId: string;
 }
 
-enum GameStatus {
+export enum GameStatus {
   Unknown = 0,
   NotStarted = 1,
   Playing = 2,
@@ -38,19 +37,16 @@ export class GameData {
   currentlyConnected: Map<Socket, PlayerData> = new Map();
   // Ids of imposters.
   imposters: Set<string> = new Set();
-  gameStatus: GameStatus = GameStatus.Unknown;
+  gameStatus: GameStatus = GameStatus.NotStarted;
   gameSettings: GameSettings = defaultGameSettings;
   allTasks: Task[] = defaultTasks;
   playerTasks: Map<string, PlayerTask[]> = new Map();
+  mapInfo: MapInfo = DEFAULT_MAP;
 
-  public addPlayer(name: string, socket: Socket): PlayerData {
-    let player = this.players.find((p) => p.name === name);
-
-    if (!player) {
-      player = new PlayerData(name, v4(), socket);
+  public addPlayer(player: PlayerData) {
+    if (!this.players.includes(player)) {
       this.players.push(player);
     }
-
     this.currentlyConnected.set(player.socket, player);
     this.addHandlers(player);
 
@@ -65,8 +61,10 @@ export class GameData {
       this.sendProgress();
     });
 
-    player.socket.on("disconnect", () => {
-      this.currentlyConnected.delete(player.socket);
+    player.socket.on("disconnect", (reason) => {
+      if (isPermanentDisconnect(reason)) {
+        this.currentlyConnected.delete(player.socket);
+      }
     });
 
     player.socket.on("ReportBody", () => {
@@ -76,11 +74,11 @@ export class GameData {
     if (player.isAdmin) {
       player.socket.on("KickPlayer", (kickPlayerMessage: KickPlayerMessage) => {
         console.log("kick-player");
-        const players_with_id = this.players.filter(
+        const playersWithId = this.players.filter(
           (player) =>
-            player.id === kickPlayerMessage.player_id && !player.isAdmin
+            player.id === kickPlayerMessage.playerId && !player.isAdmin
         );
-        players_with_id.forEach((player) => {
+        playersWithId.forEach((player) => {
           player.socket.disconnect();
           this.removePlayer(player);
         });
@@ -118,6 +116,7 @@ export class GameData {
 
   private initializeGame() {
     console.log("Initialize game");
+    console.log(this.players);
     const normalPlayers = this.players.filter((player) => {
       return !player.isAdmin;
     });
@@ -144,6 +143,18 @@ export class GameData {
       this.gameSettings.n_common_tasks
     );
 
+    // Give locations to these tasks.
+    this.mapInfo.usedLocations = {};
+    const commonLocations = getRandom(
+      Object.values(this.mapInfo.qrLocations),
+      commonTasks.length
+    );
+    commonTasks.forEach((task, index) => {
+      // Dibs a location.
+      const location = commonLocations[index];
+      this.mapInfo.usedLocations[task.id] = location;
+    });
+
     this.imposters = new Set(imposterIdxs);
 
     const all_player_tasks = normalPlayers.map((player) => {
@@ -154,7 +165,24 @@ export class GameData {
       );
 
       const player_tasks = random_tasks.concat(commonTasks).map((task) => {
-        return new PlayerTask(task);
+        // Check if we already have a location for this task.
+        let location = this.mapInfo.usedLocations[task.id];
+        if (!location) {
+          // Dibs a new one!
+          // Exclude the used ones.
+          // TODO: check of deze meuk werkt.
+          const possible = Array.from(
+            new Set(
+              [...Object.values(this.mapInfo.qrLocations)].filter(
+                (x) =>
+                  !new Set(Object.values(this.mapInfo.usedLocations)).has(x)
+              )
+            )
+          );
+          location = getRandom(possible, 1)[0];
+          this.mapInfo.usedLocations[task.id] = location;
+        }
+        return new PlayerTask(task, location);
       });
       return { id: player.id, tasks: player_tasks };
     });
@@ -186,8 +214,13 @@ export class GameData {
       };
     });
 
+    const playerTasks = this.playerTasks.get(client.id)?.map((task) => {
+      return {finished: task.finished, location: task.location, id: task.task.id};
+    });
+
     return {
       allPlayers,
+      client: {name: client.name, imposter: this.imposters.has(client.id), id: client.id, tasks: playerTasks}
     };
   }
 
@@ -215,7 +248,7 @@ export class GameData {
         ?.filter((playerTask) => {
           return playerTask.task.id !== task_id;
         })
-        .push(new PlayerTask(newTask));
+        .push(new PlayerTask(newTask, 0)); // TODO: location
     }
     return true;
   }
@@ -244,8 +277,7 @@ export class GameData {
       });
 
     admins.forEach((admin) => {
-      admin.socket.send({
-        msgType: "SetConnections",
+      admin.socket.emit("SetConnections", {
         players: playerInfo,
       });
     });
@@ -307,14 +339,18 @@ export class GameData {
   private sendBodyReported() {
     this.players.forEach((player) => {
       player.socket.emit("BodyReported");
-    })
+    });
   }
 
   private sendTasks(player: PlayerData) {
     const player_tasks = this.playerTasks.get(player.id);
     player.socket.emit("SetTasks", {
       tasks: player_tasks?.map((task) =>
-        new PlayerClientTask(task.finished, task.task.id).serialize()
+        new PlayerClientTask(
+          task.finished,
+          task.task.id,
+          task.location
+        ).serialize()
       ),
     });
   }

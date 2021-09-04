@@ -1,4 +1,4 @@
-import { Task } from "./AmongUs";
+import { PlayerTask } from "./AmongUs";
 import { GameElectricWires } from "./GameElectricWires";
 import { GameSpaceShip } from "./GameSpaceShip";
 import { GameFuelTank } from "./Games/GameFuelTank";
@@ -8,7 +8,7 @@ import { GameSwipeCard } from "./Games/GameSwipeCard";
 import { GameBeerPong } from "./Games/GameBeerPong";
 
 export interface MiniGameProps {
-  task: Task;
+  task: PlayerTask;
   onFinish: () => void;
 }
 
