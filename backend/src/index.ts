@@ -6,6 +6,7 @@ import { v4 } from "uuid";
 import { PlayerData } from "./data/PlayerData";
 import { GameManager } from "./data/GameManager";
 import { LoginCodeStatus } from "./protocol";
+import { GameStatus, SetPlayingMessage } from "./data/GameData";
 
 const app = express();
 
@@ -18,7 +19,10 @@ app.use(
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://8c3iw-3000.pitcher-staging.csb.dev",
+    ],
   },
 });
 
@@ -38,7 +42,22 @@ io.on("connection", (socket) => {
 
   socket.on("login", (loginMessage: LoginMessage, cb: Function) => {
     const player = gameManager.addPlayer(loginMessage.name, socket);
-    const currentGame = gameManager.getCurrentGame();
+
+    if (player.isAdmin) {
+      player.socket.on("SetPlaying", (setPlayingMessage: SetPlayingMessage) => {
+        const currentGame = gameManager.getCurrentGame();
+        if (
+          setPlayingMessage.gameStatus === GameStatus.Playing &&
+          (currentGame.gameStatus === GameStatus.Finished ||
+            currentGame.gameStatus === GameStatus.NotStarted)
+        ) {
+          gameManager.startNewGame();
+          gameManager.getCurrentGame().setGameStatus(GameStatus.Playing);
+        } else {
+          currentGame.setGameStatus(setPlayingMessage.gameStatus);
+        }
+      });
+    }
 
     cb({
       id: player.id,
@@ -48,10 +67,6 @@ io.on("connection", (socket) => {
         wins: player.wins,
         loses: player.loses,
         isAdmin: player.isAdmin,
-      },
-      game: {
-        status: currentGame.gameStatus,
-        settings: currentGame.gameSettings,
       },
     });
   });

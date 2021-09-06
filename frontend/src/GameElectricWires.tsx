@@ -54,17 +54,15 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
     let target = document.getElementsByClassName("B-0")[0];
     let source = document.getElementById("target0")!.getBoundingClientRect();
 
-    let callback = (
-      entries: IntersectionObserverEntry[],
-      _: IntersectionObserver
-    ) => {
+    let callback = (entries: { boundingClientRect: DOMRect }[]) => {
+      console.log(entries);
       entries.forEach((entry) => {
         const xInRange =
-          entry.boundingClientRect.x > source.x - 0.5 * source.width &&
-          entry.boundingClientRect.x < source.x + 0.5 * source.width;
+          entry.boundingClientRect.x > source.x - 0.5 * source.width - 200 &&
+          entry.boundingClientRect.x < source.x + 0.5 * source.width + 200;
         const yInRange =
-          entry.boundingClientRect.y > source.y - 0.5 * source.height &&
-          entry.boundingClientRect.y < source.y + 0.5 * source.height;
+          entry.boundingClientRect.y > source.y - 0.5 * source.height - 200 &&
+          entry.boundingClientRect.y < source.y + 0.5 * source.height + 200;
         let doesOverlap = xInRange && yInRange;
         setACorrect(doesOverlap);
       });
@@ -75,6 +73,10 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
       threshold: [0, 0.1, 0.95, 1],
     });
     io.observe(target);
+
+    wrapper?.addEventListener("touchend", () => {
+      callback([{ boundingClientRect: target.getBoundingClientRect() }]);
+    });
 
     return () => {
       io.unobserve(target);
@@ -88,17 +90,14 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
     let target = document.getElementsByClassName("B-1")[0];
     let source = document.getElementById("target1")!.getBoundingClientRect();
 
-    let callback = (
-      entries: IntersectionObserverEntry[],
-      _: IntersectionObserver
-    ) => {
+    let callback = (entries: { boundingClientRect: DOMRect }[]) => {
       entries.forEach((entry) => {
         const xInRange =
-          entry.boundingClientRect.x > source.x - 0.5 * source.width &&
-          entry.boundingClientRect.x < source.x + 0.5 * source.width;
+          entry.boundingClientRect.x > source.x - 0.5 * source.width - 200 &&
+          entry.boundingClientRect.x < source.x + 0.5 * source.width + 200;
         const yInRange =
-          entry.boundingClientRect.y > source.y - 0.5 * source.height &&
-          entry.boundingClientRect.y < source.y + 0.5 * source.height;
+          entry.boundingClientRect.y > source.y - 0.5 * source.height - 200 &&
+          entry.boundingClientRect.y < source.y + 0.5 * source.height + 200;
         let doesOverlap = xInRange && yInRange;
         setBCorrect(doesOverlap);
       });
@@ -109,6 +108,10 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
       threshold: [0, 0.1, 0.95, 1],
     });
     io.observe(target);
+
+    wrapper?.addEventListener("touchend", () => {
+      callback([{ boundingClientRect: target.getBoundingClientRect() }]);
+    });
 
     return () => {
       io.unobserve(target);
@@ -122,17 +125,14 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
     let target = document.getElementsByClassName("B-2")[0];
     let source = document.getElementById("target2")!.getBoundingClientRect();
 
-    let callback = (
-      entries: IntersectionObserverEntry[],
-      _: IntersectionObserver
-    ) => {
+    let callback = (entries: { boundingClientRect: DOMRect }[]) => {
       entries.forEach((entry) => {
         const xInRange =
-          entry.boundingClientRect.x > source.x - 0.5 * source.width &&
-          entry.boundingClientRect.x < source.x + 0.5 * source.width;
+          entry.boundingClientRect.x > source.x - 0.5 * source.width - 200 &&
+          entry.boundingClientRect.x < source.x + 0.5 * source.width + 200;
         const yInRange =
-          entry.boundingClientRect.y > source.y - 0.5 * source.height &&
-          entry.boundingClientRect.y < source.y + 0.5 * source.height;
+          entry.boundingClientRect.y > source.y - 0.5 * source.height - 200 &&
+          entry.boundingClientRect.y < source.y + 0.5 * source.height + 200;
         let doesOverlap = xInRange && yInRange;
         setCCorrect(doesOverlap);
       });
@@ -143,6 +143,10 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
       threshold: [0, 0.1, 0.95, 1],
     });
     io.observe(target);
+
+    wrapper?.addEventListener("touchend", () => {
+      callback([{ boundingClientRect: target.getBoundingClientRect() }]);
+    });
 
     return () => {
       io.unobserve(target);
@@ -156,17 +160,14 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
     let target = document.getElementsByClassName("B-3")[0];
     let source = document.getElementById("target3")!.getBoundingClientRect();
 
-    let callback = (
-      entries: IntersectionObserverEntry[],
-      _: IntersectionObserver
-    ) => {
+    let callback = (entries: { boundingClientRect: DOMRect }[]) => {
       entries.forEach((entry) => {
         const xInRange =
-          entry.boundingClientRect.x > source.x - 0.5 * source.width &&
-          entry.boundingClientRect.x < source.x + 0.5 * source.width;
+          entry.boundingClientRect.x > source.x - 0.5 * source.width - 200 &&
+          entry.boundingClientRect.x < source.x + 0.5 * source.width + 200;
         const yInRange =
-          entry.boundingClientRect.y > source.y - 0.5 * source.height &&
-          entry.boundingClientRect.y < source.y + 0.5 * source.height;
+          entry.boundingClientRect.y > source.y - 0.5 * source.height - 200 &&
+          entry.boundingClientRect.y < source.y + 0.5 * source.height + 200;
         let doesOverlap = xInRange && yInRange;
         setDCorrect(doesOverlap);
       });
@@ -177,6 +178,10 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
       threshold: [0, 0.1, 0.95, 1],
     });
     io.observe(target);
+
+    wrapper?.addEventListener("touchend", () => {
+      callback([{ boundingClientRect: target.getBoundingClientRect() }]);
+    });
 
     return () => {
       io.unobserve(target);
@@ -189,6 +194,16 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
     }
     return () => {};
   }, [ACorrect, BCorrect, CCorrect, DCorrect, onFinish]);
+
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      onFinish();
+    }, 8000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [onFinish]);
 
   const leftSide = randomOrder.map((colorIndex) => {
     const colorType = ColorTypes[colorIndex];
@@ -248,7 +263,7 @@ export const GameElectricWires = ({ onFinish }: GameProps) => {
 
   return (
     <>
-      <p>Electric wires</p>
+      <p>Electric wires (if it doesn't work it will finish after 8s)</p>
       {/* <button onClick={onFinish}>Finish!</button> */}
       <div id={"wrapper"} style={{ display: "flex", gap: "1rem" }}>
         <div style={{ gap: "1rem", display: "flex", flexDirection: "column" }}>

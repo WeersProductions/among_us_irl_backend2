@@ -3,17 +3,17 @@ interface AmongUsMapProps {
 }
 
 const PointMap = [
-  <circle key={0} className="cls-5" cx="353.6" cy="340.04" r="7.35" />,
-  <circle key={1} className="cls-5" cx="450" cy="130" r="7.35" />,
-  <circle key={2} className="cls-5" cx="109.12" cy="366.71" r="7.35" />,
-  <circle key={3} className="cls-5" cx="360.95" cy="159.06" r="7.35" />,
-  <circle key={4} className="cls-5" cx="440.19" cy="251.02" r="7.35" />,
-  <circle key={5} className="cls-5" cx="187.53" cy="123.79" r="7.35" />,
-  <circle key={6} className="cls-5" cx="429.9" cy="454.57" r="7.35" />,
+  <circle key={0} className="cls-5" cx="353.6" cy="340.04" r="7.35" />, // traphuis
+  <circle key={1} className="cls-5" cx="450" cy="130" r="7.35" />, // kamer 11
+  <circle key={2} className="cls-5" cx="109.12" cy="336.71" r="7.35" />, // douwie
+  <circle key={3} className="cls-5" cx="520.95" cy="225.06" r="7.35" />, // brandtrap
+  <circle key={4} className="cls-5" cx="440.19" cy="251.02" r="7.35" />, // badkamer
+  <circle key={5} className="cls-5" cx="187.53" cy="123.79" r="7.35" />, // rudi
+  <circle key={6} className="cls-5" cx="429.9" cy="454.57" r="7.35" />, // balkon
+  <circle key={7} className="cls-5" cx="379.9" cy="285.57" r="7.35" />, // trapkast
 ];
 
 export const AmongUsMap = ({ taskLocations }: AmongUsMapProps) => {
-  console.log(taskLocations);
   return (
     <svg
       style={{ transform: "scale(0.85)" }}
@@ -141,6 +141,8 @@ export const AmongUsMap = ({ taskLocations }: AmongUsMapProps) => {
       />
       {taskLocations &&
         taskLocations.map((taskLocation) => PointMap[taskLocation])}
+
+      {/* {PointMap} */}
       <circle className="cls-6" cx="458.14" cy="361.39" r="7.35" />
     </svg>
   );

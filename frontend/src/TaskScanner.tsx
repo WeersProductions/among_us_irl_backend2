@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import QrReader from "react-qr-reader";
+// import QrReader from "react-qr-reader";
 
 interface TaskScannerProps {
   onScanSuccess: (task: string) => void;
@@ -12,7 +12,16 @@ const OnScan = (data: string | null) => {
   }
 };
 
-const CODE_MAP: Record<string, string> = {};
+const CODE_MAP: Record<string, string> = {
+  "376": "clear_asteroids",
+  "420": "beer_pong",
+  "690": "fuel_tank",
+  "120": "space_ship",
+  "323": "long_task",
+  "099": "easy_task",
+  "812": "hard_task",
+  "143": "another_task",
+};
 
 export const TaskScanner = ({ onScanSuccess }: TaskScannerProps) => {
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +51,7 @@ export const TaskScanner = ({ onScanSuccess }: TaskScannerProps) => {
 
   return (
     <div>
-      {error ? (
+      {/* {error ? (
         <p>error: {error}</p>
       ) : (
         <QrReader
@@ -58,13 +67,15 @@ export const TaskScanner = ({ onScanSuccess }: TaskScannerProps) => {
           onError={setError}
           style={{ width: "80vw" }}
         />
-      )}
+      )} */}
 
       <div>
         <input
+          style={{ padding: 16 }}
           onChange={(e) => {
             if (e.target.value.length) {
               secondNumRef.current?.focus();
+              secondNumRef.current?.select();
               setnum1(+e.target.value);
             }
           }}
@@ -73,9 +84,11 @@ export const TaskScanner = ({ onScanSuccess }: TaskScannerProps) => {
           type="number"
         />
         <input
+          style={{ padding: 16 }}
           onChange={(e) => {
             if (e.target.value.length) {
               thirdNumRef.current?.focus();
+              thirdNumRef.current?.select();
               setnum2(+e.target.value);
             }
           }}
@@ -85,13 +98,24 @@ export const TaskScanner = ({ onScanSuccess }: TaskScannerProps) => {
           type="number"
         />
         <input
+          style={{ padding: 16 }}
           onChange={(e) => {
+            if (e.target.value.length === 0) {
+              return;
+            }
             setnum3(+e.target.value);
             const code = `${num1}${num2}${e.target.value}`;
 
-            const map = CODE_MAP[code];
-            if (map) {
-              onScanSuccess(map!);
+            const data = CODE_MAP[code];
+            if (data) {
+              console.log(data);
+              if (OnScan(data)) {
+                console.log(OnScan(data));
+                setIsWrong(false);
+                onScanSuccess(data!);
+              } else if (data) {
+                setIsWrong(true);
+              }
             }
           }}
           ref={thirdNumRef}

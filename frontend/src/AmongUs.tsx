@@ -11,6 +11,7 @@ interface AmongUsProperties {
   gameData: GameData | null;
   socket: Socket;
   progress: number;
+  bodyReporter: string | null;
 }
 
 export interface PlayerTask {
@@ -38,6 +39,7 @@ export const AmongUs = ({
   gameStatus,
   gameData,
   socket,
+  bodyReporter,
   progress,
 }: AmongUsProperties) => {
   const [roleTime, setRoleTime] = useState(5);
@@ -84,6 +86,7 @@ export const AmongUs = ({
             completed={progress * 100}
             style={{ marginBottom: "1rem" }}
           />
+          {bodyReporter && <h1>Body Reported By: {bodyReporter}</h1>}
           {roleTime > 0 ? (
             <p>
               You're{" "}
@@ -139,9 +142,22 @@ export const AmongUs = ({
               ) : (
                 <TaskScanner
                   onScanSuccess={(task_id) => {
+                    const kutMapping: Record<string, number> = {
+                      clear_asteroids: 4,
+                      beer_pong: 1,
+                      fuel_tank: 5,
+                      space_ship: 3,
+                      long_task: 2,
+                      easy_task: 0,
+                      hard_task: 7,
+                      another_task: 6,
+                    };
+
+                    const taskLoc = kutMapping[task_id];
+
                     const foundTask = gameData?.client.tasks
                       .filter((task) => !task.finished)
-                      .find((task) => task.id === task_id);
+                      .find((task) => task.location === taskLoc);
                     setCurrentTask(foundTask ? foundTask : null);
                   }}
                 />
@@ -169,6 +185,7 @@ export const AmongUs = ({
                     borderRadius: "1rem",
                     background: "white",
                   }}
+                  disabled={bodyReporter !== null}
                   onClick={() => socket.emit("ReportBody")}
                 >
                   Report

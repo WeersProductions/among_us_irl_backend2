@@ -31,7 +31,7 @@ const getServerUrl = () => {
 
   // serverUrl = `${scheme}://a-api.5-2unlimited.com`;
   // serverUrl = `${scheme}://localhost:8080`;
-  serverUrl = `${scheme}://localhost:8080`;
+  serverUrl = `${scheme}://8c3iw-8080.pitcher-staging.csb.dev`;
   console.log(serverUrl);
   return serverUrl;
 };
@@ -51,6 +51,7 @@ export const Game = () => {
   const [gameSettings, setGameSettings] = useState<GameSettings | null>(null);
   const [progress, setProgress] = useState(0);
   const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null);
+  const [bodyReporter, setBodyReporter] = useState<string | null>(null);
   const audio = new Audio("alarm.mp3");
 
   const connectWebsocket = useCallback(() => {
@@ -98,8 +99,14 @@ export const Game = () => {
       setAdminInfo((adminInfo) => ({ ...adminInfo, connectionInfo }));
     });
 
-    socket.on("BodyReported", () => {
+    socket.on("BodyReported", (data: {reporter: string}) => {
       audio.play().catch(() => console.log("Audio play error!"));
+
+      setBodyReporter(data.reporter);
+
+      setTimeout(() => {
+        setBodyReporter(null)
+      }, 10000);
     });
   }, []);
 
@@ -148,15 +155,15 @@ export const Game = () => {
               webSocket.current?.emit(
                 "login",
                 { name: username },
-                ({ status, game, profile }: LoginResponse) => {
+                ({ status, profile }: LoginResponse) => {
                   setLoginCodeStatus(status);
                   if (status === LoginCodeStatus.Success) {
                     // We also get the profile.
                     setProfile(profile);
-                    // And gamestatus.
-                    setGameStatus(game.status);
-                    // And gamesettings.
-                    setGameSettings(game.settings);
+                    // // And gamestatus.
+                    // setGameStatus(game.status);
+                    // // And gamesettings.
+                    // setGameSettings(game.settings);
                   }
                 }
               );
@@ -197,6 +204,7 @@ export const Game = () => {
                 socket={webSocket.current!}
                 gameStatus={gameStatus}
                 gameData={gameData}
+                bodyReporter={bodyReporter}
               />
             )}
           </>

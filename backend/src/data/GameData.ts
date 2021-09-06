@@ -19,7 +19,7 @@ export enum GameStatus {
   Finished = 4,
 }
 
-interface SetPlayingMessage {
+export interface SetPlayingMessage {
   gameStatus: number;
 }
 
@@ -44,11 +44,17 @@ export class GameData {
   mapInfo: MapInfo = DEFAULT_MAP;
 
   public addPlayer(player: PlayerData) {
-    if (!this.players.includes(player)) {
+    const existingPlayer = this.players.find((p) => p.name === player.name);
+    if (!existingPlayer) {
       this.players.push(player);
     }
     this.currentlyConnected.set(player.socket, player);
     this.addHandlers(player);
+
+    this.sendGameStatus();
+    this.sendGameSettings();
+
+    this.sendPlayerList();
 
     return player;
   }
@@ -64,11 +70,12 @@ export class GameData {
     player.socket.on("disconnect", (reason) => {
       if (isPermanentDisconnect(reason)) {
         this.currentlyConnected.delete(player.socket);
+        this.sendPlayerList();
       }
     });
 
     player.socket.on("ReportBody", () => {
-      this.sendBodyReported();
+      this.sendBodyReported(player.name);
     });
 
     if (player.isAdmin) {
@@ -84,10 +91,6 @@ export class GameData {
         });
       });
 
-      player.socket.on("SetPlaying", (setPlayingMessage: SetPlayingMessage) => {
-        this.setGameStatus(setPlayingMessage.gameStatus);
-      });
-
       player.socket.on(
         "SetGameSettings",
         (setGameSettingsMessage: SetGameSettingsMessage) => {
@@ -100,7 +103,7 @@ export class GameData {
     }
   }
 
-  private setGameStatus(status: number) {
+  public setGameStatus(status: number) {
     if (
       this.gameStatus === GameStatus.NotStarted &&
       status === GameStatus.Playing
@@ -215,12 +218,21 @@ export class GameData {
     });
 
     const playerTasks = this.playerTasks.get(client.id)?.map((task) => {
-      return {finished: task.finished, location: task.location, id: task.task.id};
+      return {
+        finished: task.finished,
+        location: task.location,
+        id: task.task.id,
+      };
     });
 
     return {
       allPlayers,
-      client: {name: client.name, imposter: this.imposters.has(client.id), id: client.id, tasks: playerTasks}
+      client: {
+        name: client.name,
+        imposter: this.imposters.has(client.id),
+        id: client.id,
+        tasks: playerTasks,
+      },
     };
   }
 
@@ -278,7 +290,8 @@ export class GameData {
 
     admins.forEach((admin) => {
       admin.socket.emit("SetConnections", {
-        players: playerInfo,
+        totalConnectionCount: this.currentlyConnected.size,
+        loggedInConnections: playerInfo,
       });
     });
   }
@@ -301,7 +314,7 @@ export class GameData {
     if (total_tasks <= 0) {
       return 0;
     }
-    return total_tasks / finished_tasks;
+    return finished_tasks / total_tasks;
   }
 
   private sendProgress() {
@@ -336,9 +349,9 @@ export class GameData {
     });
   }
 
-  private sendBodyReported() {
+  private sendBodyReported(from: string) {
     this.players.forEach((player) => {
-      player.socket.emit("BodyReported");
+      player.socket.emit("BodyReported", { reporter: from });
     });
   }
 
@@ -374,5 +387,8 @@ export class GameData {
 
   public kill() {
     // TODO: kill players etc...
+
+    this.players = [];
+    this.currentlyConnected.clear();
   }
 }

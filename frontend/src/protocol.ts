@@ -17,10 +17,6 @@ export interface LoginResponse {
     loses: number;
     isAdmin: boolean;
   };
-  game: {
-    settings: GameSettings;
-    status: GameStatus;
-  };
 }
 
 export interface SetGameSettingsMessage {

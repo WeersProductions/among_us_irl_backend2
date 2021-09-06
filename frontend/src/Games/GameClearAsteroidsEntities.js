@@ -97,7 +97,7 @@ const RotateBox = (entities, { time }) => {
 const CreateBox = (entities, { time, window }) => {
   const roundTime = Math.round(time.current / 1000);
   const entityName = `box${roundTime}`;
-  if (roundTime % 5 === 0 && !entities[entityName]) {
+  if (roundTime % 3 === 0 && !entities[entityName]) {
     const window_height = window.innerHeight;
     entities[entityName] = {
       x: window.innerWidth + 50,
@@ -105,7 +105,7 @@ const CreateBox = (entities, { time, window }) => {
       asteroid: true,
       renderer: <Box />,
       rotation: 0,
-      move_speed: 0.02 + Math.random() * 0.03,
+      move_speed: 0.04 + Math.random() * 0.03,
       rotate_speed:
         (0.02 + Math.random() * 0.02) * (Math.random() > 0.5 ? -1 : 1),
     };

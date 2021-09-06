@@ -7,17 +7,15 @@ export interface MapInfo {
 
 export const DEFAULT_MAP: MapInfo = {
   qrLocations: {
-    QR: 1,
-    "ANOTHER QR": 2,
-    "ASDF": 3,
-    "fdsa": 4,
-    "jekjke": 5,
-    "539": 6,
-    "fjekjfke": 7,
-    "jfkjekfnxx": 8,
-    "werrrr": 9,
-    "reurie": 10,
-    "39jfdkn": 11
+    clear_asteroids: 4,
+    beer_pong: 1,
+    fuel_tank: 5,
+    space_ship: 3,
+    long_task: 2,
+    easy_task: 0,
+    hard_task: 7,
+    another_task: 6,
+
   },
   usedLocations: {},
 };
