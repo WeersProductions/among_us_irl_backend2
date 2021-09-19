@@ -1,9 +1,16 @@
 {
   "name": "amongus-irl",
   "private": true,
-  "workspaces": ["frontend", "backend"],
+  "workspaces": [
+    "common",
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "start-server": "cd backend && yarn start",
+    "start-backend": "cd backend && yarn start",
     "start-frontend": "cd frontend && yarn start"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.3"
   }
 }

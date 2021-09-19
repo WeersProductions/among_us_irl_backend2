@@ -1,7 +1,3 @@
-import { profile } from "console";
-import React from "react";
-import { GameSettingButtons } from "./GameSettingButtons";
-
 export interface ProfileData {
   name: string;
   wins: number;

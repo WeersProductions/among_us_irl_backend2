@@ -1,24 +1,24 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { AmongUs, GameData } from "./AmongUs";
-import { GameSettingButtons } from "./GameSettingButtons";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AmongUs } from "./AmongUs";
+import { GameSettingButtons } from "./GameSettingButtonsOLD";
 import { GameSettings } from "./GameSettings";
 import { GameStatus } from "./GameStatusEnum";
 import { Login } from "./Login";
 import { Profile, ProfileData } from "./Profile";
-import { useAudio } from "./UseAudio";
 import io, { Socket } from "socket.io-client";
-import { WebsocketStatusInfo } from "./WebsocketStatusInfo";
-
 import {
+  SetPlayingMessage,
+  GameData,
   AdminInfo,
   LoginCodeStatus,
   LoginResponse,
   SetConnectionsMessage,
   SetGameSettingsMessage,
-  SetPlayingMessage,
   SetProgressMessage,
   SetTasksMessage,
-} from "./protocol";
+} from "common/messages";
+import { WebsocketStatusInfo } from "./WebsocketStatusInfo";
+import { AdminDashboard } from "./Admin/AdminDashboard";
 
 const getServerUrl = () => {
   var serverUrl;
@@ -74,7 +74,7 @@ export const Game = () => {
     });
 
     socket.on("SetPlaying", (data: SetPlayingMessage) => {
-      setGameStatus(data.status);
+      setGameStatus(data.gameStatus);
       setGameData(data.gameData);
     });
 
@@ -99,13 +99,13 @@ export const Game = () => {
       setAdminInfo((adminInfo) => ({ ...adminInfo, connectionInfo }));
     });
 
-    socket.on("BodyReported", (data: {reporter: string}) => {
+    socket.on("BodyReported", (data: { reporter: string }) => {
       audio.play().catch(() => console.log("Audio play error!"));
 
       setBodyReporter(data.reporter);
 
       setTimeout(() => {
-        setBodyReporter(null)
+        setBodyReporter(null);
       }, 10000);
     });
   }, []);
@@ -173,10 +173,10 @@ export const Game = () => {
         ) : (
           <>
             {profile?.isAdmin ? (
-              <GameSettingButtons
-                gameSettings={gameSettings}
+              <AdminDashboard
+                gameSettings={gameSettings ? gameSettings : undefined}
                 progress={progress}
-                adminInfo={adminInfo}
+                adminInfo={adminInfo ? adminInfo : undefined}
                 gameStatus={gameStatus}
                 onChangeGameStatus={(newGameStatus) => {
                   webSocket.current?.emit("SetPlaying", {
@@ -189,7 +189,7 @@ export const Game = () => {
                   });
                 }}
                 onEditGameSetting={(key, value) => {
-                  webSocket.current?.emit("SetGameSettings", {
+                  webSocket.current?.emit("ChangeGameSettings", {
                     settingName: key,
                     settingValue: value,
                   });

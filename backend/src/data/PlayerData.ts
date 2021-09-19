@@ -1,4 +1,6 @@
 import { Socket } from "socket.io";
+import { PlayerTask as PlayerTaskMessage } from "common/messages";
+import { BackendReceiveProtocol, BackendSendProtocol } from "common/protocol";
 import { Task } from "./Task";
 
 export class PlayerData {
@@ -6,7 +8,11 @@ export class PlayerData {
   loses: number = 0;
   isAdmin = false;
 
-  constructor(public name: string, public id: string, public socket: Socket) {
+  constructor(
+    public name: string,
+    public id: string,
+    public socket: Socket<BackendReceiveProtocol, BackendSendProtocol>
+  ) {
     console.log(`Created new user: ${name}`);
 
     if (name === "FloJo" || name === "Flippo") {
@@ -14,9 +20,7 @@ export class PlayerData {
     }
   }
 
-  public initialize() {
-    this.socket.on("kikker", () => {});
-  }
+  public initialize() {}
 }
 
 export class PlayerTask {
@@ -26,13 +30,17 @@ export class PlayerTask {
 }
 
 export class PlayerClientTask {
-  constructor(public finished: boolean, public task_id: string, public location: number) {}
+  constructor(
+    public finished: boolean,
+    public task_id: string,
+    public location: number
+  ) {}
 
-  public serialize() {
+  public serialize(): PlayerTaskMessage {
     return {
       finished: this.finished,
       id: this.task_id,
-      location: this.location
+      location: this.location,
     };
   }
 }

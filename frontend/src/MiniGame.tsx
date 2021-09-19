@@ -1,4 +1,4 @@
-import { PlayerTask } from "./AmongUs";
+import { PlayerTask } from "common/messages";
 import { GameElectricWires } from "./GameElectricWires";
 import { GameSpaceShip } from "./GameSpaceShip";
 import { GameFuelTank } from "./Games/GameFuelTank";

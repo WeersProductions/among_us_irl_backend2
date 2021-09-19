@@ -1,7 +1,8 @@
 import { Socket } from "socket.io";
 import { v4 } from "uuid";
+import { GameStatus } from "common/messages";
 import { isPermanentDisconnect } from "../utils";
-import { GameData, GameStatus } from "./GameData";
+import { GameData } from "./GameData";
 import { PlayerData } from "./PlayerData";
 
 export class GameManager {

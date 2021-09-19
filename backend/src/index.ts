@@ -2,11 +2,12 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
-import { v4 } from "uuid";
-import { PlayerData } from "./data/PlayerData";
+import {
+  GameStatus,
+  LoginCodeStatus,
+  SetPlayingMessage,
+} from "common/messages";
 import { GameManager } from "./data/GameManager";
-import { LoginCodeStatus } from "./protocol";
-import { GameStatus, SetPlayingMessage } from "./data/GameData";
 
 const app = express();
 
@@ -44,7 +45,7 @@ io.on("connection", (socket) => {
     const player = gameManager.addPlayer(loginMessage.name, socket);
 
     if (player.isAdmin) {
-      player.socket.on("SetPlaying", (setPlayingMessage: SetPlayingMessage) => {
+      player.socket.on("SetPlaying", (setPlayingMessage) => {
         const currentGame = gameManager.getCurrentGame();
         if (
           setPlayingMessage.gameStatus === GameStatus.Playing &&

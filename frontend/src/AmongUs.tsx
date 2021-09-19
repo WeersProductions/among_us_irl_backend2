@@ -5,6 +5,7 @@ import Progress from "react-progressbar";
 import { GameStatus } from "./GameStatusEnum";
 import { AmongUsMap } from "./AmongUsMap";
 import { Socket } from "socket.io-client";
+import { GameData, PlayerTask } from "common/messages";
 
 interface AmongUsProperties {
   gameStatus: GameStatus;
@@ -12,27 +13,6 @@ interface AmongUsProperties {
   socket: Socket;
   progress: number;
   bodyReporter: string | null;
-}
-
-export interface PlayerTask {
-  id: string;
-  finished: boolean;
-  location: number;
-}
-
-export interface Player {
-  id: number;
-  imposter?: boolean;
-  name: string;
-}
-
-export interface CurrentPlayer extends Player {
-  tasks: PlayerTask[];
-}
-
-export interface GameData {
-  allPlayers: Player[];
-  client: CurrentPlayer;
 }
 
 export const AmongUs = ({

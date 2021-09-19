@@ -1,36 +1,18 @@
 import { Socket } from "socket.io";
-import { v4 } from "uuid";
+import {
+  ChangeGameSettingsMessage,
+  FinishTaskMessage,
+  GameSettings,
+  GameStatus,
+  SetGameSettingsMessage,
+  KickPlayerMessage,
+} from "common/messages";
 import { getRandom, shuffleArray } from "../arrayUtils";
 import { isPermanentDisconnect } from "../utils";
-import { defaultGameSettings, GameSettings } from "./GameSettings";
+import { defaultGameSettings } from "./GameSettings";
 import { DEFAULT_MAP, MapInfo } from "./MapInfo";
 import { PlayerClientTask, PlayerData, PlayerTask } from "./PlayerData";
 import { Task, tasks as defaultTasks } from "./Task";
-
-interface KickPlayerMessage {
-  playerId: string;
-}
-
-export enum GameStatus {
-  Unknown = 0,
-  NotStarted = 1,
-  Playing = 2,
-  Paused = 3,
-  Finished = 4,
-}
-
-export interface SetPlayingMessage {
-  gameStatus: number;
-}
-
-interface SetGameSettingsMessage {
-  settingName: string;
-  settingValue: string;
-}
-
-interface FinishTaskMessage {
-  taskId: string;
-}
 
 export class GameData {
   players: PlayerData[] = [];
@@ -92,11 +74,11 @@ export class GameData {
       });
 
       player.socket.on(
-        "SetGameSettings",
-        (setGameSettingsMessage: SetGameSettingsMessage) => {
+        "ChangeGameSettings",
+        (changeGameSettingsMessage: ChangeGameSettingsMessage) => {
           // @ts-ignore
-          this.gameSettings[setGameSettingsMessage.settingName] =
-            setGameSettingsMessage.settingValue;
+          this.gameSettings[changeGameSettingsMessage.settingName] =
+            changeGameSettingsMessage.settingValue;
           this.sendGameSettings();
         }
       );
@@ -196,7 +178,7 @@ export class GameData {
     });
   }
 
-  private getClientGameInfo(client_id: string) {
+  private getClientGameInfo(client_id: string): GameData | undefined {
     const client = this.players.find((player) => {
       return player.id === client_id;
     });
@@ -319,7 +301,7 @@ export class GameData {
 
   private sendProgress() {
     const progress = this.calculateProgress();
-    console.log("Curent progress: ", progress);
+    console.log("Current progress: ", progress);
     if (progress >= 1) {
       // We're done!
       this.gameStatus = GameStatus.Finished;
@@ -334,9 +316,13 @@ export class GameData {
 
   private sendGameStatus() {
     this.players.forEach((player) => {
+      const gameData = this.getClientGameInfo(player.id);
+      if (!gameData) {
+        return;
+      }
       player.socket.emit("SetPlaying", {
         status: this.gameStatus,
-        gameData: this.getClientGameInfo(player.id),
+        gameData,
       });
     });
   }
@@ -358,13 +344,15 @@ export class GameData {
   private sendTasks(player: PlayerData) {
     const player_tasks = this.playerTasks.get(player.id);
     player.socket.emit("SetTasks", {
-      tasks: player_tasks?.map((task) =>
-        new PlayerClientTask(
-          task.finished,
-          task.task.id,
-          task.location
-        ).serialize()
-      ),
+      tasks: player_tasks
+        ?.map((task) =>
+          new PlayerClientTask(
+            task.finished,
+            task.task.id,
+            task.location
+          ).serialize()
+        )
+        .filter(Boolean)!,
     });
   }
 
