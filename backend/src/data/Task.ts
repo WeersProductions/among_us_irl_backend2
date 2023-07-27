@@ -55,4 +55,10 @@ export const tasks: Task[] = [
     can_be_common: true,
     can_be_selected_first: true,
   },
+  {
+    name: "Bagger quotes",
+    id: "bagger_quotes",
+    can_be_common: true,
+    can_be_selected_first: true,
+  }
 ];

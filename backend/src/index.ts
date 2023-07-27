@@ -12,7 +12,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: `https://${process.env.CODESANDBOX_HOST!.replace("$PORT", "3000")}`,
   })
 );
 
@@ -21,9 +21,10 @@ const io = new Server(server, {
   cors: {
     origin: [
       "http://localhost:3000",
-      "https://8c3iw-3000.pitcher-staging.csb.dev",
+      `https://${process.env.CODESANDBOX_HOST!.replace("$PORT", "3000")}`,
     ],
   },
+  transports: ["websocket"],
 });
 
 const gameManager = new GameManager();

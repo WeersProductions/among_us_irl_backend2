@@ -26,13 +26,19 @@ export class PlayerTask {
 }
 
 export class PlayerClientTask {
-  constructor(public finished: boolean, public task_id: string, public location: number) {}
+  constructor(
+    public finished: boolean,
+    public task_id: string,
+    public location: number,
+    public task_name: string
+  ) {}
 
   public serialize() {
     return {
       finished: this.finished,
       id: this.task_id,
-      location: this.location
+      location: this.location,
+      task_name: this.task_name,
     };
   }
 }
