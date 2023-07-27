@@ -65,7 +65,7 @@ export const GameBaggerQuotes = ({ onFinish }: GameProps) => {
       setAuthor(quote_info[0]);
     }
     return () => {};
-  }, [nQuotes, onFinish]);
+  }, [nQuotes]);
 
   let usedQuote = quote;
 

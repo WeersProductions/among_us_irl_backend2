@@ -93,6 +93,7 @@ export const GameSettingButtons = ({
               );
             })}
           </div>
+          {(progress * 100).toFixed(2)}%
           <Progress
             completed={progress * 100}
             style={{ marginBottom: "1rem" }}

@@ -89,10 +89,10 @@ export const GameFuelTank = ({ onFinish }: GameProps) => {
         tag="button"
         type="button"
         onHold={() => {
-          setProgress(progress + 0.01);
+          setProgress(progress + 0.0069);
         }}
       >
-        Fuel
+        Fuel (hold)
       </Repeatable>
     </>
   );

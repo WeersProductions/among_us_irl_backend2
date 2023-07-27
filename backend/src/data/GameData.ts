@@ -147,16 +147,16 @@ export class GameData {
     );
 
     // Give locations to these tasks.
-    this.mapInfo.usedLocations = {};
-    const commonLocations = getRandom(
-      Object.values(this.mapInfo.qrLocations),
-      commonTasks.length
-    );
-    commonTasks.forEach((task, index) => {
-      // Dibs a location.
-      const location = commonLocations[index];
-      this.mapInfo.usedLocations[task.id] = location;
-    });
+    // this.mapInfo.usedLocations = {};
+    // const commonLocations = getRandom(
+    //   Object.values(this.mapInfo.qrLocations),
+    //   commonTasks.length
+    // );
+    // commonTasks.forEach((task, index) => {
+    //   // Dibs a location.
+    //   const location = commonLocations[index];
+    //   this.mapInfo.usedLocations[task.id] = location;
+    // });
 
     this.imposters = new Set(imposterIdxs);
 
@@ -169,26 +169,30 @@ export class GameData {
 
       const player_tasks = random_tasks.concat(commonTasks).map((task) => {
         // Check if we already have a location for this task.
-        let location = this.mapInfo.usedLocations[task.id];
-        if (!location) {
-          // Dibs a new one!
-          // Exclude the used ones.
-          // TODO: check of deze meuk werkt.
-          const possible = Array.from(
-            new Set(
-              [...Object.values(this.mapInfo.qrLocations)].filter(
-                (x) =>
-                  !new Set(Object.values(this.mapInfo.usedLocations)).has(x)
-              )
-            )
-          );
-          location = getRandom(possible, 1)[0];
-          this.mapInfo.usedLocations[task.id] = location;
-        }
+        // let location = this.mapInfo.usedLocations[task.id];
+        console.log({ taskid: task.id, locs: this.mapInfo.qrLocations });
+        let location = this.mapInfo.qrLocations[task.id];
+        // if (!location) {
+        //   // Dibs a new one!
+        //   // Exclude the used ones.
+        //   // TODO: check of deze meuk werkt.
+        //   const possible = Array.from(
+        //     new Set(
+        //       [...Object.values(this.mapInfo.qrLocations)].filter(
+        //         (x) =>
+        //           !new Set(Object.values(this.mapInfo.usedLocations)).has(x)
+        //       )
+        //     )
+        //   );
+        //   location = getRandom(possible, 1)[0];
+        // }
+        this.mapInfo.usedLocations[task.id] = location;
         return new PlayerTask(task, location);
       });
       return { id: player.id, tasks: player_tasks };
     });
+
+    console.log(this.mapInfo);
 
     this.playerTasks = new Map();
     all_player_tasks.forEach((player_task) => {

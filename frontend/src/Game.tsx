@@ -145,6 +145,12 @@ export const Game = () => {
 
   return (
     <div>
+      <img
+        src="/blaadjes-optimized.svg"
+        width="100px"
+        alt="baggerlogo"
+        style={{ marginBottom: 16 }}
+      />
       {webSocket.current && !loading && (
         <WebsocketStatusInfo websocket={webSocket.current} />
       )}

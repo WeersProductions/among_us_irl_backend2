@@ -17,9 +17,9 @@ const CODE_MAP: Record<string, string> = {
   "420": "beer_pong",
   "690": "fuel_tank",
   "120": "space_ship",
-  "323": "long_task",
-  "099": "easy_task",
-  "812": "hard_task",
+  "323": "swipe_card",
+  "099": "record_temperature",
+  "812": "electric_wires",
   "143": "another_task",
   "203": "bagger_quotes",
 };
