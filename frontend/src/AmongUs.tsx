@@ -18,6 +18,7 @@ export interface PlayerTask {
   id: string;
   finished: boolean;
   location: number;
+  task_name: string;
 }
 
 export interface Player {
@@ -47,6 +48,19 @@ export const AmongUs = ({
   const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
+    const listener = () => {
+      if (showMap) {
+        setShowMap(false);
+      }
+    };
+
+    document.addEventListener("mousedown", listener);
+    return () => {
+      document.removeEventListener("mousedown", listener);
+    };
+  }, [showMap]);
+
+  useEffect(() => {
     const intervalId = setInterval(updateRoleTime, 1000);
     function updateRoleTime() {
       setRoleTime((rT) => {
@@ -61,138 +75,121 @@ export const AmongUs = ({
     };
   }, []);
 
+  if (gameStatus === GameStatus.Paused) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          background: "rbga(82, 89, 102, 80)",
+        }}
+      >
+        <p style={{ margin: "auto" }}>Game paused...</p>
+      </div>
+    );
+  }
+
+  if (gameStatus === GameStatus.Finished) {
+    return (
+      <div>
+        <p>{progress >= 1 ? "Non-Imposters won!" : "Imposters won!"}</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      {gameStatus === GameStatus.Paused && (
-        <div
-          style={{
-            width: "100vw",
-            height: "100vh",
-            display: "flex",
-            background: "rbga(82, 89, 102, 80)",
-          }}
-        >
-          <p style={{ margin: "auto" }}>Game paused...</p>
-        </div>
-      )}
-      {gameStatus === GameStatus.Finished ? (
-        <div>
-          <p>{progress >= 1 ? "Non-Imposters won!" : "Imposters won!"}</p>
-        </div>
+      <h1 style={{ fontSize: 32 }}>Among Us</h1>
+      <Progress completed={progress * 100} style={{ marginBottom: "1rem" }} />
+      {bodyReporter && <h1>Body Reported By: {bodyReporter}</h1>}
+      {roleTime > 0 ? (
+        <p>
+          You're{" "}
+          {gameData?.client.imposter
+            ? `imposter with ${gameData?.allPlayers
+                .filter((player) => player.imposter)
+                .map((player) => player.name)
+                .join(", ")}`
+            : "normal"}
+        </p>
       ) : (
         <>
-          <p>Among us</p>
-          <Progress
-            completed={progress * 100}
-            style={{ marginBottom: "1rem" }}
-          />
-          {bodyReporter && <h1>Body Reported By: {bodyReporter}</h1>}
-          {roleTime > 0 ? (
-            <p>
-              You're{" "}
-              {gameData?.client.imposter
-                ? `imposter with ${gameData?.allPlayers
-                    .filter((player) => player.imposter)
-                    .map((player) => player.name)
-                    .join(", ")}`
-                : "normal"}
-            </p>
-          ) : (
-            <>
-              {showMap && (
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "90vw",
-                    zIndex: 10,
-                    background: "gray",
-                    left: 0,
-                    padding: "1rem",
-                  }}
-                >
-                  <button
-                    style={{
-                      margin: "1rem",
-                      padding: "0.5rem",
-                      paddingRight: "1rem",
-                      paddingLeft: "1rem",
-                      borderRadius: "1rem",
-                      background: "white",
-                    }}
-                    onClick={() => setShowMap(!showMap)}
-                  >
-                    Close
-                  </button>
-                  <AmongUsMap
-                    taskLocations={gameData?.client.tasks
-                      .filter((task) => !task.finished)
-                      .map((task) => task.location)}
-                  />
-                </div>
-              )}
-              {currentTask ? (
-                <MiniGame
-                  task={currentTask}
-                  onFinish={() => {
-                    socket.emit("FinishTask", { taskId: currentTask.id });
-                    currentTask.finished = true;
-                    setCurrentTask(null);
-                  }}
-                />
-              ) : (
-                <TaskScanner
-                  onScanSuccess={(task_id) => {
-                    const kutMapping: Record<string, number> = {
-                      clear_asteroids: 4,
-                      beer_pong: 1,
-                      fuel_tank: 5,
-                      space_ship: 3,
-                      long_task: 2,
-                      easy_task: 0,
-                      hard_task: 7,
-                      another_task: 6,
-                    };
+          {showMap && (
+            <div
+              style={{
+                position: "absolute",
+                zIndex: 10,
+                left: 0,
+                right: 0,
+                marginTop: -150,
 
-                    const taskLoc = kutMapping[task_id];
-
-                    const foundTask = gameData?.client.tasks
-                      .filter((task) => !task.finished)
-                      .find((task) => task.location === taskLoc);
-                    setCurrentTask(foundTask ? foundTask : null);
-                  }}
-                />
-              )}
-              <div>
-                <button
-                  style={{
-                    margin: "1rem",
-                    padding: "0.5rem",
-                    paddingRight: "1rem",
-                    paddingLeft: "1rem",
-                    borderRadius: "1rem",
-                    background: "white",
-                  }}
-                  onClick={() => setShowMap(!showMap)}
-                >
-                  Map
-                </button>
-                <button
-                  style={{
-                    margin: "1rem",
-                    padding: "0.5rem",
-                    paddingRight: "1rem",
-                    paddingLeft: "1rem",
-                    borderRadius: "1rem",
-                    background: "white",
-                  }}
-                  disabled={bodyReporter !== null}
-                  onClick={() => socket.emit("ReportBody")}
-                >
-                  Report
-                </button>
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  padding: "1rem",
+                  width: "80%",
+                  background: "rgb(60 33 17)",
+                  boxShadow: "inset 0 3px 8px rgba(0, 0, 0, 0.3)",
+                  borderRadius: "4px",
+                }}
+              >
+                <AmongUsMap tasks={gameData?.client.tasks} />
               </div>
-            </>
+            </div>
           )}
+          {currentTask ? (
+            <MiniGame
+              task={currentTask}
+              onFinish={() => {
+                socket.emit("FinishTask", { taskId: currentTask.id });
+                currentTask.finished = true;
+                setCurrentTask(null);
+              }}
+            />
+          ) : (
+            <TaskScanner
+              onScanSuccess={(task_id) => {
+                const foundTask = gameData?.client.tasks
+                  .filter((task) => !task.finished)
+                  .find((task) => task.id === task_id);
+                setCurrentTask(foundTask ? foundTask : null);
+              }}
+            />
+          )}
+          <div>
+            <button
+              style={{
+                margin: "1rem",
+                padding: "0.5rem",
+                paddingRight: "1rem",
+                paddingLeft: "1rem",
+                borderRadius: "1rem",
+                background: "white",
+              }}
+              onClick={() => setShowMap(!showMap)}
+            >
+              Map
+            </button>
+            <button
+              style={{
+                margin: "1rem",
+                padding: "0.5rem",
+                paddingRight: "1rem",
+                paddingLeft: "1rem",
+                borderRadius: "1rem",
+                background: "white",
+              }}
+              disabled={bodyReporter !== null}
+              onClick={() => socket.emit("ReportBody")}
+            >
+              Report
+            </button>
+          </div>
         </>
       )}
     </>

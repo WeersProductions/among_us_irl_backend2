@@ -8,6 +8,7 @@ import { Profile, ProfileData } from "./Profile";
 import { useAudio } from "./UseAudio";
 import io, { Socket } from "socket.io-client";
 import { WebsocketStatusInfo } from "./WebsocketStatusInfo";
+import * as csbUrils from "@codesandbox/utils";
 
 import {
   AdminInfo,
@@ -21,7 +22,7 @@ import {
 } from "./protocol";
 
 const getServerUrl = () => {
-  var serverUrl;
+  // var serverUrl;
   var scheme = "ws";
   var location = document.location;
 
@@ -31,8 +32,14 @@ const getServerUrl = () => {
 
   // serverUrl = `${scheme}://a-api.5-2unlimited.com`;
   // serverUrl = `${scheme}://localhost:8080`;
-  serverUrl = `${scheme}://8c3iw-8080.pitcher-staging.csb.dev`;
+  let serverUrl = `${scheme}://${csbUrils.getCodeSandboxHost(8080)}`;
   console.log(serverUrl);
+  if (serverUrl === undefined) {
+    throw Error("THSIS HOOULD NEVER HAPPEN!!!");
+  }
+
+  // `${scheme}://8c3iw-8080.pitcher-staging.csb.dev`;
+  // console.log(serverUrl);
   return serverUrl;
 };
 
@@ -55,7 +62,9 @@ export const Game = () => {
   const audio = new Audio("alarm.mp3");
 
   const connectWebsocket = useCallback(() => {
-    webSocket.current = io(getServerUrl());
+    webSocket.current = io(getServerUrl(), {
+      transports: ["websocket"],
+    });
     const socket = webSocket.current;
     socket.connect();
     socket.on("connect", () => {
@@ -99,13 +108,13 @@ export const Game = () => {
       setAdminInfo((adminInfo) => ({ ...adminInfo, connectionInfo }));
     });
 
-    socket.on("BodyReported", (data: {reporter: string}) => {
+    socket.on("BodyReported", (data: { reporter: string }) => {
       audio.play().catch(() => console.log("Audio play error!"));
 
       setBodyReporter(data.reporter);
 
       setTimeout(() => {
-        setBodyReporter(null)
+        setBodyReporter(null);
       }, 10000);
     });
   }, []);

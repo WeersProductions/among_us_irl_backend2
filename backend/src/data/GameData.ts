@@ -222,6 +222,7 @@ export class GameData {
         finished: task.finished,
         location: task.location,
         id: task.task.id,
+        task_name: task.task.name,
       };
     });
 
@@ -357,12 +358,14 @@ export class GameData {
 
   private sendTasks(player: PlayerData) {
     const player_tasks = this.playerTasks.get(player.id);
+    console.log(player_tasks);
     player.socket.emit("SetTasks", {
       tasks: player_tasks?.map((task) =>
         new PlayerClientTask(
           task.finished,
           task.task.id,
-          task.location
+          task.location,
+          task.task.name
         ).serialize()
       ),
     });

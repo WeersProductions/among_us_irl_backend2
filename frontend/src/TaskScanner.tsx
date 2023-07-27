@@ -21,6 +21,7 @@ const CODE_MAP: Record<string, string> = {
   "099": "easy_task",
   "812": "hard_task",
   "143": "another_task",
+  "203": "bagger_quotes",
 };
 
 export const TaskScanner = ({ onScanSuccess }: TaskScannerProps) => {
@@ -100,6 +101,7 @@ export const TaskScanner = ({ onScanSuccess }: TaskScannerProps) => {
         <input
           style={{ padding: 16 }}
           onChange={(e) => {
+            console.log(e.target.value);
             if (e.target.value.length === 0) {
               return;
             }

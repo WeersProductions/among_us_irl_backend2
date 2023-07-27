@@ -15,7 +15,7 @@ export const DEFAULT_MAP: MapInfo = {
     easy_task: 0,
     hard_task: 7,
     another_task: 6,
-
+    bagger_quotes: 8,
   },
   usedLocations: {},
 };

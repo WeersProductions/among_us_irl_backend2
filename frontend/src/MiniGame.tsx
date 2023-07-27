@@ -6,6 +6,7 @@ import { GameClearAsteroids } from "./Games/GameClearAsteroids";
 import { GameRecordTemperature } from "./Games/GameRecordTemperature";
 import { GameSwipeCard } from "./Games/GameSwipeCard";
 import { GameBeerPong } from "./Games/GameBeerPong";
+import { GameBaggerQuotes } from "./Games/GameBaggerQuotes";
 
 export interface MiniGameProps {
   task: PlayerTask;
@@ -33,6 +34,8 @@ export const MiniGame = ({ task, onFinish }: MiniGameProps) => {
       return <GameSwipeCard onFinish={onFinish} />;
     case "beer_pong":
       return <GameBeerPong onFinish={onFinish} />;
+    case "bagger_quotes":
+      return <GameBaggerQuotes onFinish={onFinish} />;
     default:
       return <p>Unknown game: {task.id}</p>;
   }
