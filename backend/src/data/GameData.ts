@@ -147,16 +147,16 @@ export class GameData {
     );
 
     // Give locations to these tasks.
-    this.mapInfo.usedLocations = {};
-    const commonLocations = getRandom(
-      Object.values(this.mapInfo.qrLocations),
-      commonTasks.length
-    );
-    commonTasks.forEach((task, index) => {
-      // Dibs a location.
-      const location = commonLocations[index];
-      this.mapInfo.usedLocations[task.id] = location;
-    });
+    // this.mapInfo.usedLocations = {};
+    // const commonLocations = getRandom(
+    //   Object.values(this.mapInfo.qrLocations),
+    //   commonTasks.length
+    // );
+    // commonTasks.forEach((task, index) => {
+    //   // Dibs a location.
+    //   const location = commonLocations[index];
+    //   this.mapInfo.usedLocations[task.id] = location;
+    // });
 
     this.imposters = new Set(imposterIdxs);
 
@@ -169,7 +169,8 @@ export class GameData {
 
       const player_tasks = random_tasks.concat(commonTasks).map((task) => {
         // Check if we already have a location for this task.
-        let location = this.mapInfo.usedLocations[task.id];
+        // let location = this.mapInfo.usedLocations[task.id];
+        let location = this.mapInfo.qrLocations[task.id];
         if (!location) {
           // Dibs a new one!
           // Exclude the used ones.
